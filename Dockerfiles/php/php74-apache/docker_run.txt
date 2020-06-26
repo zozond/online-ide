@@ -1,0 +1,49 @@
+
+docker build -t danawa_httpd24:dev .
+#-----------------------------------------
+docker run -d \
+-p 80:80 \
+-p 443:443 \
+-v /C/DANAWA/PHP:/home/danawa/service/www \
+-v /C/DEV/configure/httpd24-php7fpm/httpd/conf:/usr/local/apache2/conf \
+-v /C/DEV/configure/httpd24-php7fpm/httpd/htdocs:/usr/local/apache2/htdocs \
+\
+--add-host alti1-dev.danawa.com:112.175.252.197 \
+--add-host pas-t.danawa.com:112.175.252.222 \
+--add-host pas-branch-t.danawa.com:112.175.252.222 \
+--add-host searchapi-t.danawa.com:119.205.194.121 \
+--add-host mas-t.danawa.com:112.175.252.221 \
+--add-host auth-t.danawa.com:112.175.252.223 \
+--add-host cas-t.danawa.com:112.175.252.223 \
+--add-host cnas-t.danawa.com:112.175.252.223 \
+--add-host pras-t.danawa.com:112.175.252.223 \
+--add-host api-t.danawa.com:112.175.252.223 \
+--add-host autoapi-t.danawa.com:112.175.252.211 \
+--add-host dev.danawa.com:112.175.252.216 \
+\
+--restart always \
+--name httpd24-dev \
+danawa_httpd24:dev
+
+#-----------------------------------------------#
+
+docker exec -it httpd24-local /bin/bash
+
+
+################################################################
+
+docker build -t danawa_php7fpm:dev .
+
+docker run -d \
+-p 9900:9900 \
+-v C:/DANAWA/PHP:/home/danawa/service/www \
+\
+-v /C/DEV/configure/httpd24-php7fpm/php/php-fpm.conf:/usr/local/etc/php-fpm.conf \
+-v /C/DEV/configure/httpd24-php7fpm/php/php/:/usr/local/etc/php \
+-v /C/DEV/configure/httpd24-php7fpm/php/php-fpm.d/:/usr/local/etc/php-fpm.d \
+\
+--restart always \
+--name php7fpm-dev \
+danawa_php7fpm:dev
+
+docker exec -it php7fpm-dev /bin/bash

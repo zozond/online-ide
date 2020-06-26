@@ -1,0 +1,31 @@
+java:
+    spring-boot:
+        maven-java8:
+            url: dcr.danawa.io/ide-java:springboot-maven-java8
+        maven-java11:
+            url: dcr.danawa.io/ide-java:springboot-maven-java11
+        gradle-java8:
+            url: dcr.danawa.io/ide-java:springboot-gradle-java8
+        gradle-java11:
+            url: dcr.danawa.io/ide-java:springboot-gradle-java11
+    java-project:
+        maven-java8:
+            url: dcr.danawa.io/ide-java:maven-project-java8
+        maven-java11:
+            url: dcr.danawa.io/ide-java:maven-project-java11
+python:
+    plain:
+        python38:
+            url: zozond/code-server-python-3.8 
+        python27:
+            url: zozond/code-server-python-2.7
+php:
+    apache:
+        php74-apache:
+            url: dcr.danawa.io/ide-php:php7.4-apache
+cpp:
+    plain:
+        cpp17:
+            url: zozond/code-server-cpp 
+        cpp11:
+            url: zozond/code-server-cpp 

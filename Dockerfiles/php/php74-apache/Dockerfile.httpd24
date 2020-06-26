@@ -1,0 +1,103 @@
+###################################################################
+### docker 로컬 개발 서버 구성
+### httpd-2.4.6-40.el7.centos.4.x86_64
+####################################################################
+FROM httpd:2.4
+LABEL maintainer="kangbk35 <kbk35@danawa.com>"
+
+RUN apt-get update -y && apt upgrade -y \
+    && ( apt-get -y install \
+        apt-utils vim htop procps \
+        net-tools iputils-ping \
+        locales \
+    ) \
+    && apt-get clean all
+
+
+
+### 언어설정 (UTF-8) ############################################
+### 참고 : https://www.44bits.io/ko/post/setup_linux_locale_on_ubuntu_and_debian_container
+
+# ENV DEV_ADOPTED_ENV DEVELOPER_PC
+ENV DEV_ADOPTED_ENV DEVELOPING_SERVER
+ENV LANG ko_KR.UTF-8
+ENV LC_ALL $LANG
+ENV TZ Asia/Seoul
+ENV EDITOR /usr/bin/vim
+
+# RUN sed -i 's/^# \(ko_KR.UTF-8\)/\1/' /etc/locale.gen \
+#     && locale-gen \
+#     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
+
+RUN echo "\nko_KR.EUC-KR EUC-KR" >> /etc/locale.gen \
+    && echo "${LANG} UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
+
+
+### 로컬 개발 환경변수 설정 ###############################
+RUN echo -e "\n" >> /etc/profile \
+    && echo "###############################" >> /etc/profile \
+    && echo "# 추가 변수 설정 				#" >> /etc/profile \
+    && echo "###############################" >> /etc/profile \
+    && echo "export DEV_ADOPTED_ENV=\"${DEV_ADOPTED_ENV}\"" >> /etc/profile \
+    && echo "export LANG=\"$LANG\"" >> /etc/profile \
+    && echo "export LC_ALL=\"${LC_ALL}\"" >> /etc/profile \
+    && echo "export EDITOR=\"${EDITOR}\"" >> /etc/profile
+
+
+### danawa 계정 추가
+RUN useradd danawa -u 1000 -g 100 -d /home/danawa -m -G users -s /bin/bash
+#RUN chmod 755 /home/danawa;
+
+
+### 아파치 2.4 설치 #####################################
+RUN apt-get install -y apache2-dev apache2-ssl-dev;
+
+
+### PHP & PHP Module 설치 ######################################
+# RUN apt-get install -y \
+#         php \
+#         php-cli \
+#         php-common \
+#         php-dev \
+#         php-fpm
+
+RUN ln -sf /usr/local/apache2/bin/rotatelogs /usr/sbin/
+
+### host 서버 연결용 볼륨 설정 ################################################
+# VOLUME /home/danawa
+VOLUME ["/usr/local/apache2"]
+VOLUME ["/NAS1/VOL1", "/NAS2/VOL1"]
+
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/adcenter         /home/danawa/adcenter
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/blog             /home/danawa/blog
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/common_files     /home/danawa/common_files
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/globalLayout     /home/danawa/globalLayout
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/globalUrl        /home/danawa/globalUrl
+RUN ln -sf /NAS1/VOL1/STATIC/global_library/php_dev /home/danawa/global_library
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/html_com         /home/danawa/html_com
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/html_com_ssl     /home/danawa/html_com_ssl
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/main_web         /home/danawa/main_web
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/main_web_ssl     /home/danawa/main_web_ssl
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/new_html         /home/danawa/new_html
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/plan             /home/danawa/plan
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/prod             /home/danawa/prod
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/prod_branch      /home/danawa/prod_branch
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/search           /home/danawa/search
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/static           /home/danawa/static
+# RUN ln -sf /NAS2/VOL1/COMMUNITY/CACHE_DEV           /NAS2/VOL1/COMMUNITY/CACHE_DEV
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/tAdmin           /home/danawa/tAdmin
+RUN ln -sf /NAS1/VOL1/STATIC/Stage/tAdmin_Ranking   /home/danawa/tAdmin_Ranking
+
+
+RUN apt-get clean all
+WORKDIR /usr/local/apache2
+
+EXPOSE 80
+EXPOSE 443
+
+# CMD ["/bin/bash"]
+# CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+#ENTRYPOINT ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+CMD ["httpd-foreground"]

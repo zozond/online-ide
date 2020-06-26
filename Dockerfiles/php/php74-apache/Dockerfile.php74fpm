@@ -1,0 +1,109 @@
+###################################################################
+### docker 개발 서버 구성
+### PHP:fpm 7.4
+
+### PHP 관련 디렉토리
+# /usr/local/bin/php
+# /usr/local/etc/php
+# /usr/local/etc/php/conf.d
+# /usr/local/lib/php/extensions/no-debug-non-zts-20190902
+####################################################################
+FROM php:7.4-fpm
+# LABEL maintainer="kangbk35 <kbk35@danawa.com>"
+
+RUN apt-get update -y && apt upgrade -y \
+    && ( \
+    apt-get install -y \
+        build-essential \
+        vim htop procps net-tools iputils-ping \
+        curl automake gcc make cmake locales libx11-dev \
+        libxext-dev software-properties-common wget \
+        imagemagick apt-utils \
+        libcurl4-openssl-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng-dev \
+        zlib1g-dev \
+        libxml2-dev \
+        libzip-dev \
+        libonig-dev \
+        libsqlite3-dev \
+        libssh-dev \
+        libssl-dev \
+        libedit-dev \
+        libreadline-dev \
+        libsodium-dev \
+        git \
+        graphviz \
+        g++ \
+        libicu-dev \
+        libmagickwand-dev \
+        pkg-config \
+        ssh-client \
+        supervisor ) \
+    && apt-get clean all
+
+
+### 언어설정 (UTF-8) ############################################
+### 참고 : https://www.44bits.io/ko/post/setup_linux_locale_on_ubuntu_and_debian_container
+
+ENV LANG ko_KR.UTF-8
+ENV LC_ALL $LANG
+ENV TZ Asia/Seoul
+
+RUN echo "\nko_KR.EUC-KR EUC-KR" >> /etc/locale.gen \
+    && echo "${LANG} UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
+
+### PHP & PHP Module 설치 ######################################
+# RUN apt-get install -y \
+#         php \
+#         php-cli \
+#         php-common \
+#         php-devel \
+#         php-fpm
+
+
+### php module 설치 #############################################
+RUN docker-php-ext-install \
+    bcmath \
+    calendar ctype curl \
+    dba dom \
+    exif fileinfo \
+    gd gettext \
+    iconv \
+    json \
+    mbstring mysqli \
+    opcache \
+    pdo pdo_mysql pdo_sqlite phar posix \
+    readline session shmop simplexml soap sockets sodium \
+    tokenizer \
+    xml xmlrpc \
+    zend_test
+    # hash snmp tidy xmlreader xmlwriter xsl
+
+
+### php 컴포저 설치 #############################################################
+RUN curl https://getcomposer.org/installer > composer-setup.php \
+    && php composer-setup.php \
+    && mv composer.phar /usr/local/bin/composer \
+    && rm -f composer-setup.php
+
+### pear로 Predis 설치 #####################################################
+RUN pear channel-discover pear.nrk.io \
+    && pear install nrk/Predis
+
+
+### rabbitmq & amqp 설치 ################################################################
+RUN apt-get install -y librabbitmq-dev \
+    && pecl install amqp \
+    && docker-php-ext-enable amqp
+
+RUN apt-get clean all
+WORKDIR /usr/local/etc/php
+
+EXPOSE 9900
+
+CMD ["php-fpm"]
