@@ -196,7 +196,9 @@ router.post('/create', (req, res) => {
             }
         }
         Port = Port.toString();
-        var ExposedPort2 = "22/tcp";
+        
+        // var ExposedPort2 = "22/tcp";
+        var ExposedPort2 = "10000/tcp";
         dockerForm.Labels.Port = Port;
         dockerForm.ExposedPorts[ExposedPort2] = {};
         dockerForm.HostConfig.PortBindings[ExposedPort2] = [];
@@ -255,6 +257,7 @@ router.post('/start', (req, res) => {
     var UserId = req.body.id;
     var ContainerId = req.body.containerid;
     var ContainerName = req.body.containername;
+    var ContainerPort = req.body.port;
 
     /* DB에서 컨테이너 상태를 실행중으로 변경 */
     var query = "UPDATE containers SET state=\'실행중\' WHERE userid=" + UserId + " and containerid=\'" + ContainerId + "\'";
@@ -278,22 +281,22 @@ router.post('/start', (req, res) => {
                 var subdomain = result2.data.Name.substring(1, result2.data.Name.length);
                 if (prevState == '정지됨') {
                     /* 이전상태가 '정지됨' 상태 였다면 현재는 Start 했으니 Proxy에 설정 등록 필요 없음 */
-                    res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/home/danawa/"+ContainerName });
-                    // res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/root/" + ContainerName });
+                    // res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/home/danawa/"+ContainerName });
+                    res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:"+ContainerPort+"/?folder=/home/danawa/"+ContainerName });
                 } else {
                     /* 이전상태가 '생성됨' 상태 였다면 현재는 Start 했으니 Proxy에 설정 등록 필요 */
                     /* Ide port 등록 */
-                    var proxy_data = { mode: "http", bindPort: 10000, host: result2.data.NetworkSettings.IPAddress, timeout: 5000000, port: 10000, subdomain: subdomain };
+                    var proxy_data = { mode: "http", bindPort: 10000, host: result2.data.NetworkSettings.IPAddress, timeout: 30000, port: 10000, subdomain: subdomain };
                     axios.post(haproxy_url + '/config/services/' + UserId, proxy_data).then(() => {
                         console.log("HAProxy done,  port:10000")
-                        res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/home/danawa/" + ContainerName});
-                        // res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/root/" + ContainerName });
+                        // res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:10000/?folder=/home/danawa/" + ContainerName});
+                        res.send({ isUpdate: true, url: subdomain + ".ide-test.danawa.io:" + ContainerPort + "/?folder=/home/danawa/" + ContainerName});
                     }).catch((error) => {
                         console.log("HAProxy port:10000 error", error)
                         res.send({ isUpdate: false, errorMessage: error });
                     });
                     /* Application Port 등록 */
-                    var proxy_data2 = { mode: "http", bindPort: 8080, host: result2.data.NetworkSettings.IPAddress, timeout: 5000000, port: 8080, subdomain: subdomain };
+                    var proxy_data2 = { mode: "http", bindPort: 8080, host: result2.data.NetworkSettings.IPAddress, timeout: 30000, port: 8080, subdomain: subdomain };
                     axios.post(haproxy_url + '/config/services/' + UserId, proxy_data2).then(() => {
                         console.log("HAProxy done, port: 8080")
                     }).catch((error) => {

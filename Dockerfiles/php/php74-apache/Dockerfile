@@ -186,4 +186,4 @@ CMD /bin/bash -c "echo ${RSA} >> authorized_keys; \
                     cd /home/danawa ; git clone ${GIT_REPO} ${FOLDER}; \
                     mv /home/danawa/.template /home/danawa/${FOLDER} ; rm -rf /home/danawa/${FOLDER}/.template ; cd /home/danawa/${FOLDER} ; git init ;\
 		            cd ~ ; echo ${GIT_CREDENTIALS} >> .git-credentials ;  \
-                    /home/danawa/.cloud-ide/code-server/bin/code-server --extensions-dir /home/danawa/.local/share/code-server/extensions --auth=none --bind-addr 0.0.0.0:10000;"
+                    /home/danawa/.cloud-ide/code-server/bin/code-server --idle-timeout --log debug --extensions-dir /home/danawa/.local/share/code-server/extensions --auth=none --bind-addr 0.0.0.0:10000;"

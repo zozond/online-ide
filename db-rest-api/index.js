@@ -57,7 +57,7 @@ exec(cmd, (err, stdout, stderr) => {
         }
     };
     proxyForm.Hostname = "haproxy";
-    proxyForm.Image = "dcr.danawa.io/haproxy-restapi:2.0";
+    proxyForm.Image = "dcr.danawa.io/haproxy-restapi:4.3";
     proxyForm.Labels.Stack = "proxy";
     proxyForm.Volumes = {
         "/etc/haproxy": { }
@@ -66,8 +66,8 @@ exec(cmd, (err, stdout, stderr) => {
     proxyForm.Labels.ProxyRESTAPIPort = "9999";
     proxyForm.Labels.ProxyPort = "10000";
     proxyForm.HostConfig.Binds = [];
-    proxyForm.HostConfig.Binds.push("/home/sjh/remarks/online-ide/db-rest-api/proxy_files" + ":" + "/etc/haproxy");
-//    proxyForm.HostConfig.Binds.push("/home/sjh/remarks/online-ide/db-rest-api/proxy_files" + ":" + "/var/lib/haproxy-restapi/conf");
+    // proxyForm.HostConfig.Binds.push("/home/sjh/remarks/online-ide/db-rest-api/proxy_files" + ":" + "/etc/haproxy");
+   proxyForm.HostConfig.Binds.push("C:\\Users\\admin\\Desktop\\test2\\online-ide\\db-rest-api\\proxy_files" + ":" +  "/etc/haproxy");
     var ExposedPort = "10000/tcp";
     var ExposedPort2 = "9999/tcp";
     var ExposedPort3 = "8080/tcp";

@@ -54,7 +54,6 @@ class Home extends React.Component {
     /* 시작했을때 */
     componentDidMount() {
         /* 쿠키가 남아 있다면  */
-        
         if(cookie.load('user')){
             try{
                 var decoded = jwt.verify(cookie.load('user'), 'danawa');
@@ -69,8 +68,8 @@ class Home extends React.Component {
                 return;
             }
         } else {
-            console.log(sessionStorage.getItem('cookieExpired'));
             /* 쿠키가 없다면 */
+            console.log(sessionStorage.getItem('cookieExpired'));
             if(sessionStorage.getItem('cookieExpired') == "1"){
                 /* 쿠키 만료  */
                 this.setState({isAlert: true, alertMessage: "쿠키가 만료 되었습니다. 다시 로그인을 해주세요."})
@@ -114,12 +113,6 @@ class Home extends React.Component {
                 this.setState({isAlert: true, alertMessage: "인증이 되지 않았습니다. 등록한 이메일을 확인해 주세요"});
             } else if (res.data.isUser && res.data.rows.auth == 1) {
                 // console.log(res.data.rows)
-                if(keepLogin.checked){
-                    console.log("keepLogin  ",  keepLogin.checked)
-                }else{
-                    sessionStorage.setItem('Oncelogin', res.data.token);
-                    cookie.remove('user');
-                }
                 sessionStorage.setItem("id", res.data.rows.id)
                 sessionStorage.setItem("user", id.value)
                 sessionStorage.setItem("email", res.data.rows.email)

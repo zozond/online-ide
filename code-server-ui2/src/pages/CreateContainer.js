@@ -33,8 +33,6 @@ class CreateContainer extends React.Component {
 
     /* 시작 할 때 */
     componentDidMount() {
-        if (!sessionStorage.getItem('Oncelogin')) {
-            /* 토큰으로 로그인이 정상적으로 되어있는지 확인 */
             if (!cookie.load('user')) {
                 this.props.history.push("/");
                 sessionStorage.setItem('cookieExpired', 1);
@@ -52,7 +50,6 @@ class CreateContainer extends React.Component {
                 this.props.history.push("/");
                 return;
             }
-        }
 
         axios.get('/db/images').then((res) => {
             var images = res.data.yaml;

@@ -84,25 +84,22 @@ class MyContainers extends React.Component {
     /* 시작 했을 때 */
     componentDidMount() {
         /* 토큰으로 로그인이 정상적으로 되어있는지 확인 */
-        if (!sessionStorage.getItem('Oncelogin')) {
-            /* 토큰으로 로그인이 정상적으로 되어있는지 확인 */
-            if (!cookie.load('user')) {
-                this.props.history.push("/");
-                sessionStorage.setItem('cookieExpired', 1);
-                return;
-            }
-            // /* 토큰이 제대로 살아 있는 지 */
-            try {
-                var decoded = jwt.verify(cookie.load('user'), 'danawa');
-                console.log(decoded);
-                sessionStorage.setItem("id", decoded.id)
-                sessionStorage.setItem("user", decoded.value)
-                sessionStorage.setItem("email", decoded.email)
-            } catch (e) {
-                console.log("jwt 토큰 에러 \n >>> ", e);
-                this.props.history.push("/");
-                return;
-            }
+        if (!cookie.load('user')) {
+            sessionStorage.setItem('cookieExpired', 1);
+            this.props.history.push("/");
+            return;
+        }
+        // /* 토큰이 제대로 살아 있는 지 */
+        try {
+            var decoded = jwt.verify(cookie.load('user'), 'danawa');
+            console.log(decoded);
+            sessionStorage.setItem("id", decoded.id)
+            sessionStorage.setItem("user", decoded.value)
+            sessionStorage.setItem("email", decoded.email)
+        } catch (e) {
+            console.log("jwt 토큰 에러 \n >>> ", e);
+            this.props.history.push("/");
+            return;
         }
 
         /* 개발환경이 생성 되었다면 */
